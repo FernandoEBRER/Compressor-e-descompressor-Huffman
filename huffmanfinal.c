@@ -12,7 +12,18 @@
 #include <locale.h> //para usar acentuacao
  
 //--------- ESTRUTURAS INTERNAS ---------
- 
+
+
+/**
+ * @struct no
+ * @brief Estrutura que representa um nó da árvore de Huffman.
+ * 
+ * @var caractere Caractere armazenado no nó (se for folha).
+ * @var freq Frequência de ocorrência do caractere.
+ * @var left Ponteiro para filho esquerdo.
+ * @var right Ponteiro para filho direito.
+ * @var next Ponteiro para próximo nó na lista ordenada.
+ */
 typedef struct no {
     unsigned char caractere;
     int freq;
@@ -20,8 +31,15 @@ typedef struct no {
     struct no* right;
     struct no* next;
 } No;
- 
 
+
+/**
+ * @struct ListaInterna
+ * @brief Estrutura para representar uma lista encadeada ordenada de nós.
+ * 
+ * @var inicio Ponteiro para o primeiro nó da lista.
+ * @var tam Número de nós na lista.
+ */
 typedef struct {
     No* inicio;
     int tam;
