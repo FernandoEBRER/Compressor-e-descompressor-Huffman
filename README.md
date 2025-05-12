@@ -26,7 +26,7 @@
 
   ### Para descomprimir um arquivo .huff :
   
-        ./huffmanfinal -d arquivo_entrada.huff arquivo_saida.ext
+        ./huffmanfinal -d arquivo_entrada.huff arquivo_saida.txt
   Exemplo :
             ./huffmanfinal -d fer.huff jjj.txt
 
