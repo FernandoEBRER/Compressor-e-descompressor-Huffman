@@ -1,91 +1,105 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
-#define MAX 100
-
-typedef struct {
-    char nome[30];
-    int prioridade; // quanto maior, mais urgente
-} Evento;
+#define MAX_HEAP 100
 
 typedef struct {
-    Evento eventos[MAX];
+    int tempoProximoSpawn; // quando o inimigo vai aparecer
+    int tipo; // 0, 1 ou 2
+    int frequencia; // intervalo de tempo entre aparições
+} Inimigo;
+
+// Funções auxiliares
+Inimigo* criarInimigo(int tempo, int tipo, int freq) {
+    Inimigo* novo = malloc(sizeof(Inimigo));
+    novo->tempoProximoSpawn = tempo;
+    novo->tipo = tipo;
+    novo->frequencia = freq;
+    return novo;
+}
+
+// Heap
+typedef struct {
+    Inimigo* itens[MAX_HEAP];
     int tamanho;
-} MaxHeap;
+} MinHeap;
 
-void trocar(Evento *a, Evento *b) {
-    Evento temp = *a;
+MinHeap* criarHeap() {
+    MinHeap* h = malloc(sizeof(MinHeap));
+    h->tamanho = 0;
+    return h;
+}
+
+void trocar(Inimigo** a, Inimigo** b) {
+    Inimigo* temp = *a;
     *a = *b;
     *b = temp;
 }
 
-void subir(MaxHeap *heap, int i) {
+void subir(MinHeap* h, int i) {
     while (i > 0) {
         int pai = (i - 1) / 2;
-        if (heap->eventos[i].prioridade > heap->eventos[pai].prioridade) {
-            trocar(&heap->eventos[i], &heap->eventos[pai]);
+        if (h->itens[i]->tempoProximoSpawn < h->itens[pai]->tempoProximoSpawn) {
+            trocar(&h->itens[i], &h->itens[pai]);
             i = pai;
         } else break;
     }
 }
 
-void descer(MaxHeap *heap, int i) {
-    int maior = i;
-    int esquerda = 2 * i + 1;
-    int direita = 2 * i + 2;
-
-    if (esquerda < heap->tamanho && heap->eventos[esquerda].prioridade > heap->eventos[maior].prioridade)
-        maior = esquerda;
-    if (direita < heap->tamanho && heap->eventos[direita].prioridade > heap->eventos[maior].prioridade)
-        maior = direita;
-    
-    if (maior != i) {
-        trocar(&heap->eventos[i], &heap->eventos[maior]);
-        descer(heap, maior);
+void descer(MinHeap* h, int i) {
+    while (2*i + 1 < h->tamanho) {
+        int esq = 2*i + 1, dir = 2*i + 2, menor = esq;
+        if (dir < h->tamanho && h->itens[dir]->tempoProximoSpawn < h->itens[esq]->tempoProximoSpawn)
+            menor = dir;
+        if (h->itens[i]->tempoProximoSpawn > h->itens[menor]->tempoProximoSpawn) {
+            trocar(&h->itens[i], &h->itens[menor]);
+            i = menor;
+        } else break;
     }
 }
 
-void inserir(MaxHeap *heap, char *nome, int prioridade) {
-    if (heap->tamanho == MAX) {
-        printf("Heap cheio!\n");
-        return;
-    }
-    Evento novo;
-    strcpy(novo.nome, nome);
-    novo.prioridade = prioridade;
-    heap->eventos[heap->tamanho] = novo;
-    subir(heap, heap->tamanho);
-    heap->tamanho++;
+void inserir(MinHeap* h, Inimigo* inimigo) {
+    h->itens[h->tamanho] = inimigo;
+    subir(h, h->tamanho);
+    h->tamanho++;
 }
 
-Evento remover(MaxHeap *heap) {
-    if (heap->tamanho == 0) {
-        printf("Heap vazio!\n");
-        Evento vazio = {"", -1};
-        return vazio;
-    }
-    Evento raiz = heap->eventos[0];
-    heap->eventos[0] = heap->eventos[heap->tamanho - 1];
-    heap->tamanho--;
-    descer(heap, 0);
-    return raiz;
+Inimigo* removerMin(MinHeap* h) {
+    if (h->tamanho == 0) return NULL;
+    Inimigo* min = h->itens[0];
+    h->itens[0] = h->itens[--h->tamanho];
+    descer(h, 0);
+    return min;
 }
 
+// Main
 int main() {
-    MaxHeap heap;
-    heap.tamanho = 0;
+    MinHeap* heap = criarHeap();
 
-    inserir(&heap, "Explosao", 90);
-    inserir(&heap, "Ataque inimigo", 70);
-    inserir(&heap, "Curar personagem", 50);
-    inserir(&heap, "Coletar item", 20);
+    // Frequências diferentes para cada tipo
+    inserir(heap, criarInimigo(3, 0, 3)); // tipo 0: aparece a cada 3s
+    inserir(heap, criarInimigo(5, 1, 5)); // tipo 1: aparece a cada 5s
+    inserir(heap, criarInimigo(7, 2, 7)); // tipo 2: aparece a cada 7s
 
-    printf("Simulando eventos:\n");
-    while (heap.tamanho > 0) {
-        Evento e = remover(&heap);
-        printf("Executando evento: %s (prioridade %d)\n", e.nome, e.prioridade);
+    int tempoAtual = 0;
+    int tempoFinal = 30; // simular até o tempo 30
+
+    while (tempoAtual <= tempoFinal) 
+    {
+        // verifica se algum inimigo deve aparecer
+        while (heap->tamanho > 0 && heap->itens[0]->tempoProximoSpawn <= tempoAtual) 
+        {
+            // se sim, remove do heap e mostra na tela
+            Inimigo* inimigo = removerMin(heap);
+            printf("Tempo %d: Inimigo tipo %d apareceu!\n", tempoAtual, inimigo->tipo);
+
+            // Reagendar o próximo spawn desse tipo de inimigo
+            inimigo->tempoProximoSpawn += inimigo->frequencia;
+            inserir(heap, inimigo);
+        }
+        tempoAtual++;
     }
 
+    free(heap);
     return 0;
 }
