@@ -20,7 +20,7 @@
 
   ### Para comprimir um arquivo :
 
-        ./huffmanfinal -c arquivo_original.ext arquivo_comprimido.huff
+        ./huffmanfinal -c arquivo_original.txt arquivo_comprimido.huff
   Exemplo :
             ./huffmanfinal -c testo.txt fer.huff 
 
