@@ -22,10 +22,11 @@ typedef struct AssignNode {
     struct AssignNode *left;   // atribuição false
     struct AssignNode *right;  // atribuição true
     struct AssignNode *parent; // ancestral (para reconstruir o caminho)
-} AssignNode;
+} AssignNode;  //nó de atribuicao
 
 // Cria novo nó de atribuição
-AssignNode* create_node(int var, int value, AssignNode *parent) {
+AssignNode* create_node(int var, int value, AssignNode *parent) 
+{
     AssignNode *node = malloc(sizeof(AssignNode));
     node->var = var;
     node->value = value;
@@ -35,8 +36,10 @@ AssignNode* create_node(int var, int value, AssignNode *parent) {
 }
 
 // Retorna valor da variável a partir da árvore de atribuições
-int get_assignment(AssignNode *node, int var) {
-    while (node) {
+int get_assignment(AssignNode *node, int var) 
+{
+    while (node) 
+    {
         if (node->var == var)
             return node->value;
         node = node->parent;
@@ -45,7 +48,9 @@ int get_assignment(AssignNode *node, int var) {
 }
 
 // Avalia literal (positivo ou negativo)
-bool eval_literal(AssignNode *node, int lit) {
+//avalia se um literal é verdadeiro na atribuição atual
+bool eval_literal(AssignNode *node, int lit) 
+{
     int var = abs(lit);
     int val = get_assignment(node, var);
     if (val == 0) return false;
@@ -53,16 +58,23 @@ bool eval_literal(AssignNode *node, int lit) {
 }
 
 // Verifica se cláusula está satisfeita
-bool is_clause_satisfied(Formula *F, Clause *clause, AssignNode *node) {
-    for (int i = 0; i < clause->size; i++) {
+//verifica se algum literal da cláusula é verdadeiro
+//Se algum for verdadeiro, então a cláusula está satisfeita
+bool is_clause_satisfied(Formula *F, Clause *clause, AssignNode *node) 
+{
+    for (int i = 0; i < clause->size; i++) 
+    {
         if (eval_literal(node, clause->literals[i])) return true;
     }
     return false;
 }
 
 // Verifica se cláusula é insatisfatível sob a atribuição atual
-bool is_clause_unsatisfiable(Formula *F, Clause *clause, AssignNode *node) {
-    for (int i = 0; i < clause->size; i++) {
+//verifica se a cláusula não pode mais ser satisfeita
+bool is_clause_unsatisfiable(Formula *F, Clause *clause, AssignNode *node) 
+{
+    for (int i = 0; i < clause->size; i++) 
+    {
         int var = abs(clause->literals[i]);
         if (get_assignment(node, var) == 0)
             return false;
@@ -71,22 +83,34 @@ bool is_clause_unsatisfiable(Formula *F, Clause *clause, AssignNode *node) {
 }
 
 // SAT principal (busca recursiva)
-bool sat_tree(Formula *F, AssignNode *node, AssignNode **solution) {
+//Essa função tenta resolver a fórmula criando um árvore de decisões
+bool sat_tree(Formula *F, AssignNode *node, AssignNode **solution) 
+{
     bool all_satisfied = true;
-    for (int i = 0; i < F->num_clauses; i++) {
+    
+    //Verifica todas as cláusulas (false = impossivel e true = satisfeita)
+    for (int i = 0; i < F->num_clauses; i++) 
+    {
         if (is_clause_unsatisfiable(F, &F->clauses[i], node))
             return false;
         if (!is_clause_satisfied(F, &F->clauses[i], node))
             all_satisfied = false;
     }
 
-    if (all_satisfied) {
+    //Se a fórmula toda já está satisfeita, termina com sucesso
+    if (all_satisfied) 
+    {
         *solution = node;
         return true;
     }
 
-    for (int i = 1; i <= F->num_vars; i++) {
-        if (get_assignment(node, i) == 0) {
+    //Escolhe a próxima variável não atribuída:
+    //tenta true(1) direita
+    //tenta false (-1) esquerda
+    for (int i = 1; i <= F->num_vars; i++) 
+    {
+        if (get_assignment(node, i) == 0) 
+        {
             node->right = create_node(i, 1, node);
             if (sat_tree(F, node->right, solution)) return true;
             node->left = create_node(i, -1, node);
@@ -101,12 +125,17 @@ bool sat_tree(Formula *F, AssignNode *node, AssignNode **solution) {
 // Imprime atribuições da solução
 void print_solution(AssignNode *node, int num_vars) {
     int result[MAX_VARS + 1] = {0};
-    while (node && node->var != 0) {
+   
+    /*ele percorre a árvore de trás pra frente (de baixo para cima) 
+    e monta um vetor com os valores de cada variável*/
+    while (node && node->var != 0) 
+    {
         result[node->var] = node->value;
         node = node->parent;
     }
 
-    for (int i = 1; i <= num_vars; i++) {
+    for (int i = 1; i <= num_vars; i++) 
+    {
         printf("x%d = %s\n", i,
                result[i] == 1 ? "true" :
                result[i] == -1 ? "false" : "unset");
@@ -114,29 +143,42 @@ void print_solution(AssignNode *node, int num_vars) {
 }
 
 // Leitura do arquivo DIMACS
-void read_dimacs(const char *filename, Formula *F) {
+void read_dimacs(const char *filename, Formula *F) 
+{
     FILE *fp = fopen(filename, "r");
-    if (!fp) {
+    if (!fp) 
+    {
         perror("Erro ao abrir arquivo");
         exit(1);
     }
 
+    //Reserva espaço na memória para as cláusulas
     F->clauses = malloc(sizeof(Clause) * MAX_CLAUSES);
     char line[256];
     int clause_idx = 0;
 
-    while (fgets(line, sizeof(line), fp)) {
+
+    while (fgets(line, sizeof(line), fp)) 
+    {
+        //Ignora comentários e linhas em branco
         if (line[0] == 'c' || line[0] == '\n') continue;
 
-        if (line[0] == 'p') {
+        //Lê o número de variáveis e de cláusulas
+        if (line[0] == 'p') 
+        {
             sscanf(line, "p cnf %d %d", &F->num_vars, &F->num_clauses);
-        } else {
+        } 
+
+        //Lê os literais das cláusulas (terminam com 0), e os salva no vetor
+        else 
+        {
             F->clauses[clause_idx].literals = malloc(sizeof(int) * MAX_VARS);
             F->clauses[clause_idx].size = 0;
 
             int lit;
             char *ptr = line;
-            while (sscanf(ptr, "%d", &lit) == 1 && lit != 0) {
+            while (sscanf(ptr, "%d", &lit) == 1 && lit != 0) 
+            {
                 F->clauses[clause_idx].literals[F->clauses[clause_idx].size++] = lit;
                 while (*ptr && *ptr != ' ') ptr++;
                 while (*ptr == ' ') ptr++;
@@ -150,15 +192,19 @@ void read_dimacs(const char *filename, Formula *F) {
 }
 
 // Libera memória dos dados da fórmula
-void free_formula(Formula *F) {
-    for (int i = 0; i < F->num_clauses; i++) {
+void free_formula(Formula *F) 
+{
+    for (int i = 0; i < F->num_clauses; i++) 
+    {
         free(F->clauses[i].literals);
     }
+
     free(F->clauses);
 }
 
 // Libera memória da árvore de atribuições
-void free_tree(AssignNode *node) {
+void free_tree(AssignNode *node) 
+{
     if (!node) return;
     free_tree(node->left);
     free_tree(node->right);
@@ -166,8 +212,10 @@ void free_tree(AssignNode *node) {
 }
 
 // Função principal
-int main(int argc, char *argv[]) {
-    if (argc != 2) {
+int main(int argc, char *argv[]) 
+{
+    if (argc != 2)
+     {
         printf("Uso: %s arquivo.cnf\n", argv[0]);
         return 1;
     }
@@ -175,19 +223,24 @@ int main(int argc, char *argv[]) {
     Formula F;
     read_dimacs(argv[1], &F);
 
+    //Cria o nó raiz da árvore (fictício) e inicializa a solução.
     AssignNode *root = create_node(0, 0, NULL);  // raiz dummy
     AssignNode *solution_node = NULL;
 
     bool satisfiable = sat_tree(&F, root, &solution_node);
 
-    if (satisfiable && solution_node != NULL) {
+    if (satisfiable && solution_node != NULL) 
+    {
         printf("SAT!\n");
         print_solution(solution_node, F.num_vars);
-    } else {
+    } 
+    else 
+    {
         printf("UNSAT!\n");
     }
 
     free_tree(root);
     free_formula(&F);
+
     return 0;
 }
