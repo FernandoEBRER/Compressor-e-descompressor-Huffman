@@ -9,7 +9,7 @@ int main()
     const int CAPACIDADE = 10000;
 
     FilhaCom heap = {
-        .item= malloc(CAPACIDADE * sizeof(int)),
+        .item = malloc(CAPACIDADE * sizeof(int)),
         .capacidade = CAPACIDADE,
         .tamanho = 0
     };
