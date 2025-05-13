@@ -3,32 +3,10 @@
 #include <time.h>
 #include "comparacao.h"
 
-
-void gerar_dados(int n, const char* arq)
-{
-    FILE* file = fopen(arq, "w");
-    if(file == NULL)
-    {
-        perror("Error ao abrir arquivo");
-        exit(1);
-    }
-
-    srand(time(NULL));
-
-    for(int i = 0; i < n; i++)
-    {
-        fprintf(file, "%d\n", rand() % 1000);
-    }
-
-    fclose(file);
-}
-
 int main()
 {
     const int NUM_TESTES = 1000;
     const int CAPACIDADE = 10000;
-
-    //gerar_dados(NUM_TESTES, "dados/entrada.txt");
 
     FilhaCom heap = {
         .item= malloc(CAPACIDADE * sizeof(int)),
@@ -42,7 +20,6 @@ int main()
         .tamanho = 0,
     };
 
-    //FILE* entrada = fopen("dados/entrada.txt", "r");
     FILE* saida = fopen("comparacoes.csv", "w");
     fprintf(saida, "Valor, Comparacoes_Heap, Comparacoes_Lista\n");
 
@@ -61,7 +38,6 @@ int main()
 
     printf("Arquivo comparacoes.csv gerado com succeso\n");
 
-    //fclose(entrada);
     fclose(saida);
     free(heap.item);
     free(fila.elemento);
