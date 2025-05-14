@@ -30,68 +30,48 @@
   Exemplo :
             ./huffmanfinal -d fer.huff jjj.txt
             
-SAT Solver em C
-Este projeto implementa um resolvedor de fórmulas booleanas no formato CNF (Conjunctive Normal Form) usando uma árvore de decisões. A entrada deve estar no padrão DIMACS CNF.
+1. **Título do Projeto**:  
+   Resolvedor de Fórmulas Booleanas em CNF (SAT Solver)
 
-1. Visão Geral
-O programa lê um arquivo .cnf, constrói a representação da fórmula e tenta encontrar uma atribuição das variáveis que satisfaça todas as cláusulas. Ele imprime a solução encontrada, se existir.
+2. **Descrição do Projeto**:  
 
-2. Estrutura
-Leitura do arquivo DIMACS.
+   Este projeto implementa um algoritmo para resolver fórmulas booleanas no formato **CNF (Conjunctive Normal Form)**, utilizando uma **árvore de decisões** recursiva.
 
-Representação da fórmula e das cláusulas.
+   - Lê arquivos no padrão **DIMACS CNF**, amplamente utilizado em competições de SAT.
+   - Verifica se existe uma atribuição de variáveis que satisfaça todas as cláusulas (SAT) ou se isso é impossível (UNSAT).
+   - Imprime a solução encontrada, se houver, com os valores de cada variável.
+   - Toda a estrutura é modularizada com uso adequado de alocação dinâmica e liberação de memória.
 
-Algoritmo de busca em árvore para tentar todas as possíveis atribuições.
+3. **Instruções de Compilação**:  
 
-Impressão do resultado SAT/UNSAT.
+   Para compilar o projeto:
 
-3. Compilação
-Para compilar o código, você precisa ter um compilador C instalado, como o gcc.
 
-4. Passos
-Salve o código em um arquivo chamado sat_solver.c.
+Isso irá gerar o executável chamado `sat_solver`.
 
-Compile com:
+4. **Para executar o resolvedor com um arquivo `.cnf`**:
 
-bash
-Copiar
-Editar
-gcc -o sat_solver sat_solver.c
-5. Execução
-Após compilar, execute o programa passando um arquivo .cnf no formato DIMACS como argumento:
 
-bash
-Copiar
-Editar
-./sat_solver exemplo.cnf
-Exemplo de uso:
-bash
-Copiar
-Editar
-./sat_solver testes/formula1.cnf
-6. Formato do Arquivo DIMACS
-Exemplo de um arquivo .cnf com 3 variáveis e 2 cláusulas:
+**Exemplo**:
 
-css
-Copiar
-Editar
-c Exemplo de fórmula
-p cnf 3 2
-1 -3 0
-2 3 -1 0
-Linhas iniciadas com c são comentários.
+5. **Formato do Arquivo DIMACS**:
 
-A linha p cnf <num_vars> <num_clauses> define o número de variáveis e cláusulas.
+Exemplo de um arquivo `.cnf` com 3 variáveis e 2 cláusulas:
 
-Cada linha seguinte representa uma cláusula, terminada por 0.
 
-7. Liberação de Memória
-O programa libera corretamente toda a memória alocada dinamicamente ao final da execução.
+- Linhas iniciadas com `c` são **comentários**.
+- A linha `p cnf <num_vars> <num_clauses>` define o número de variáveis e cláusulas.
+- Cada linha seguinte representa uma cláusula, terminada por `0`.
 
-8. Erros Comuns
-"Uso: ./sat_solver arquivo.cnf": ocorre quando o caminho para o arquivo .cnf não é passado como argumento.
+6. **Liberação de Memória**:  
 
-"Erro ao abrir arquivo": o arquivo passado não foi encontrado ou não pôde ser aberto.
+O programa **libera corretamente toda a memória** alocada dinamicamente, tanto da estrutura da fórmula quanto da árvore de atribuições.
 
-9. Licença
-Este código é um exemplo educacional e está disponível sob licença MIT.
+7. **Erros Comuns**:
+
+- `"Uso: ./sat_solver arquivo.cnf"`: ocorre quando o caminho para o arquivo `.cnf` **não é fornecido** como argumento.
+- `"Erro ao abrir arquivo"`: o arquivo passado **não foi encontrado** ou **não pôde ser lido**.
+
+8. **Licença**:
+
+Este código é fornecido como um exemplo **educacional** e está disponível sob a **licença MIT**.
