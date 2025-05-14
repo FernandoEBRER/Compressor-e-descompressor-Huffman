@@ -46,18 +46,41 @@
 
    Para compilar o projeto:
 
+gcc sat_solver.c -o sat_solver
+
+markdown
+Copiar
+Editar
 
 Isso irá gerar o executável chamado `sat_solver`.
 
 4. **Para executar o resolvedor com um arquivo `.cnf`**:
 
+./sat_solver arquivo.cnf
+
+makefile
+Copiar
+Editar
 
 **Exemplo**:
+./sat_solver exemplo.cnf
+
+markdown
+Copiar
+Editar
 
 5. **Formato do Arquivo DIMACS**:
 
 Exemplo de um arquivo `.cnf` com 3 variáveis e 2 cláusulas:
 
+c Exemplo de fórmula
+p cnf 3 2
+1 -3 0
+2 3 -1 0
+
+markdown
+Copiar
+Editar
 
 - Linhas iniciadas com `c` são **comentários**.
 - A linha `p cnf <num_vars> <num_clauses>` define o número de variáveis e cláusulas.
